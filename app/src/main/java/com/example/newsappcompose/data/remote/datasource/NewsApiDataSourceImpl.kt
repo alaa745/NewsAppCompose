@@ -7,6 +7,7 @@ import com.example.newsappcompose.domain.datasource.NewsApiDataSource
 import com.example.newsappcompose.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
+import retrofit2.Response
 import javax.inject.Inject
 
 class NewsApiDataSourceImpl @Inject constructor(private val newsApiManager: NewsApiManager): NewsApiDataSource {
@@ -17,5 +18,14 @@ class NewsApiDataSourceImpl @Inject constructor(private val newsApiManager: News
             println("data source error")
             throw e
         }
+    }
+
+    override suspend fun getTopNews(
+        page: String?,
+        category: List<String>?,
+        searchText: String?,
+        domain: List<String>?
+    ): Response<GetNewsResponse> {
+        return newsApiManager.getTopNews(page = page , category = category?.joinToString(",") , domain = domain?.joinToString(",") , searchText = searchText)
     }
 }
