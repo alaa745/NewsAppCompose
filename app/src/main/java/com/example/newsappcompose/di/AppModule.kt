@@ -8,6 +8,7 @@ import com.example.newsappcompose.domain.Constants.BASE_URL
 import com.example.newsappcompose.domain.datasource.NewsApiDataSource
 import com.example.newsappcompose.domain.repository.NewsApiRepository
 import com.example.newsappcompose.domain.usecase.GetNewsUseCase
+import com.example.newsappcompose.domain.usecase.GetTopNewsUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -59,4 +60,9 @@ object AppModule {
     @Provides
     @Singleton
     fun providesGetNewsUseCase(newsApiRepository: NewsApiRepository): GetNewsUseCase = GetNewsUseCase(newsApiRepository = newsApiRepository)
+
+    @Provides
+    @Singleton
+    fun providesGetTopNewsUseCase(newsApiRepository: NewsApiRepository): GetTopNewsUseCase = GetTopNewsUseCase(newsApiRepository = newsApiRepository)
+
 }

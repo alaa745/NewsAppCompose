@@ -40,15 +40,22 @@ import com.example.newsappcompose.destination.Destination
 import com.example.newsappcompose.presentation.components.CategorySelector
 import com.example.newsappcompose.presentation.components.NewsCard
 import com.example.newsappcompose.presentation.components.SearchBar
+import com.example.newsappcompose.presentation.components.VerticalNewsCard
+import kotlinx.coroutines.flow.collect
 import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val isLoading by viewModel.isLoading.collectAsState()
+    val isTopLoading by viewModel.isTopLoading.collectAsState()
+
     val isSearching by viewModel.isSearching.collectAsState()
     var isSearch = isSearching
     val isError by viewModel.isError.collectAsState()
+    val isTopError by viewModel.isTopError.collectAsState()
+    val topError by viewModel.topError.collectAsState()
+
     val error by viewModel.error.collectAsState()
     val categories = listOf("All" , "Sports", "Education", "Technology", "Health" , "Politics" , "Travel" , "Science")
     var selectedCategory by remember {
@@ -66,8 +73,11 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
 //    var isSearching by remember {
 //        mutableStateOf(false)
 //    }
+    val topNewsFlow = viewModel.getTopNews(category = listOf("top") , searchText = searchTextForApi)
+    val topArticles = topNewsFlow.collectAsState(initial = null)
     val newsFlow = viewModel.getNews(category = listOf(selectedCategoryForApi) , searchText = searchTextForApi)
     val articles = newsFlow.collectAsLazyPagingItems()
+
 
 
     Scaffold(
@@ -105,6 +115,45 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
                 println("Search $searchTextForApi")
             }
             Spacer(modifier = Modifier.height(10.dp))
+            when {
+                isTopLoading -> {
+                    println("loading toppp")
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        color = Color(0xFF1877F2)
+                    )
+                }
+                isTopError -> {
+                    println("top errorr")
+                    ErrorView(error = error)
+                }
+                else  -> {
+                    VerticalNewsCard(
+                        title = topArticles.value?.results?.first()?.title,
+                        image = topArticles.value?.results?.first()?.image_url,
+                        source = topArticles.value?.results?.first()?.source_id,
+                        category = topArticles.value?.results?.first()?.category?.first(),
+                        sourceIcon = topArticles.value?.results?.first()?.source_icon,
+                    )
+//                    LazyColumn(
+//                        contentPadding = innerPadding,
+////                modifier = Modifier.fillMaxSize()
+//
+//                    ) {
+//                        items(articles.itemCount) {
+//                            articles[it].let { article ->
+//                                NewsCard(
+//                                    title = article?.title,
+//                                    image = article?.image_url,
+//                                    source = article?.source_id,
+//                                    category = article?.category?.first(),
+//                                    sourceIcon = article?.source_icon,
+//                                )
+//                            }
+//                        }
+//                    }
+                }
+            }
             CategorySelector(
                 categories = categories,
                 selectedCategory = selectedCategory,
