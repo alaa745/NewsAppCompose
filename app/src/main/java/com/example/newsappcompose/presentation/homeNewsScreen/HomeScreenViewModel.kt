@@ -51,6 +51,7 @@ class HomeScreenViewModel @Inject constructor(private val getNewsUseCase: GetNew
                 .catch {
                     println("errorr")
                 }
+
             _isLoading.value = false
 //            _isSearching.value = false
             emitAll(data)
@@ -83,6 +84,8 @@ class HomeScreenViewModel @Inject constructor(private val getNewsUseCase: GetNew
             _topError.value = e.message ?: "Unknown error"
         } finally {
             _isTopLoading.value = false
+            _isTopError.value = false
+
         }
     }
 }
