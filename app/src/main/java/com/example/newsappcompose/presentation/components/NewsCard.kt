@@ -2,6 +2,7 @@ package com.example.newsappcompose.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.newsappcompose.R
+import com.example.newsappcompose.domain.model.Result
 import com.example.newsappcompose.presentation.onBoarding.pages
 import com.example.newsappcompose.ui.theme.NewsAppComposeTheme
 import java.util.Date
@@ -38,16 +40,14 @@ import java.util.Date
 @Composable
 fun NewsCard(
     modifier: Modifier = Modifier,
-    title: String? = null,
-    image: String? = null,
-    source: String? = null,
-    category: String?= null,
-    sourceIcon: String? = null,
-    date: Date? = null,
+    result: Result,
+    onClick: (String) -> Unit
 ){
-    Row(verticalAlignment = Alignment.CenterVertically , modifier = Modifier.padding(5.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically , modifier = Modifier.padding(5.dp).clickable {
+        onClick(result.description ?: "")
+    }) {
         AsyncImage(
-            model = image,
+            model = result.image_url,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -57,12 +57,12 @@ fun NewsCard(
         Column (verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.padding(7.dp)){
             Text(
-                text = category ?: "",
+                text = result.category?.first() ?: "",
                 style = MaterialTheme.typography.labelSmall,
                 color = colorResource(id = R.color.text_medium)
             )
             Text(
-                text = title ?: "",
+                text = result.title ?: "",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -70,7 +70,7 @@ fun NewsCard(
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(
-                    model = sourceIcon,
+                    model = result.source_icon,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -78,7 +78,7 @@ fun NewsCard(
                         .clip(CircleShape)
                 )
                 Text(
-                    text = source ?: "",
+                    text = result.source_id ?: "",
                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = colorResource(id = R.color.text_medium),
                     modifier = Modifier.padding(start = 5.dp)
@@ -105,11 +105,11 @@ fun NewsCard(
 }
 
 
-@Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun previewCard(){
-    NewsAppComposeTheme {
-        NewsCard()
-    }
-}
+//@Preview(showBackground = true)
+//@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
+//@Composable
+//fun previewCard(){
+//    NewsAppComposeTheme {
+//        NewsCard()
+//    }
+//}

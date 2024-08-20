@@ -12,4 +12,6 @@ sealed class Destination(val route: String , val title: String , val icon: Image
     object NewsScreen: Destination(route = "NewsScreen" , title = "Home" , icon = Icons.Default.Home)
     object Explore: Destination(route = "Explore" , title = "Explore" , icon = Icons.Rounded.Call)
 
+    object NewsDetailsScreen: Destination(route = "NewsDetailsScreen" , title = "" , icon = null)
+
 }

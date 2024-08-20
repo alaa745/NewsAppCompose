@@ -33,20 +33,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.newsappcompose.R
+import com.example.newsappcompose.data.local.NewsDao
 import com.example.newsappcompose.destination.Destination
 import com.example.newsappcompose.presentation.components.CategorySelector
 import com.example.newsappcompose.presentation.components.NewsCard
 import com.example.newsappcompose.presentation.components.SearchBar
 import com.example.newsappcompose.presentation.components.VerticalNewsCard
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.collect
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.Locale
+import javax.inject.Inject
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
+fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel() , navHostController: NavHostController) {
     val isLoading by viewModel.isLoading.collectAsState()
     val isTopLoading by viewModel.isTopLoading.collectAsState()
 
@@ -55,7 +61,6 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
     val isError by viewModel.isError.collectAsState()
     val isTopError by viewModel.isTopError.collectAsState()
     val topError by viewModel.topError.collectAsState()
-
     val error by viewModel.error.collectAsState()
     val categories = listOf("All" , "Sports", "Education", "Technology", "Health" , "Politics" , "Travel" , "Science")
     var selectedCategory by remember {
@@ -184,13 +189,15 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel()) {
 
                     ) {
                         items(articles.itemCount) {
-                            articles[it].let { article ->
+                            articles[it]?.let { article ->
                                 NewsCard(
-                                    title = article?.title,
-                                    image = article?.image_url,
-                                    source = article?.source_id,
-                                    category = article?.category?.first(),
-                                    sourceIcon = article?.source_icon,
+                                    result = article,
+                                    onClick = { desc ->
+                                        val articleJson = Gson().toJson(article)
+                                        val encodedCountriesJson = URLEncoder.encode(articleJson, StandardCharsets.UTF_8.toString())
+                                        navHostController.navigate("${Destination.NewsDetailsScreen.route}/$encodedCountriesJson")
+//                                        println("Desc $desc")
+                                    }
                                 )
                             }
                         }
