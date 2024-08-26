@@ -13,6 +13,7 @@ import com.example.newsappcompose.domain.Constants.BASE_URL
 import com.example.newsappcompose.domain.datasource.NewsApiDataSource
 import com.example.newsappcompose.domain.repository.NewsRepository
 import com.example.newsappcompose.domain.usecase.GetNewsUseCase
+import com.example.newsappcompose.domain.usecase.GetSavedArticlesUseCase
 import com.example.newsappcompose.domain.usecase.GetTopNewsUseCase
 import dagger.Module
 import dagger.Provides
@@ -70,6 +71,10 @@ object AppModule {
     @Provides
     @Singleton
     fun providesGetTopNewsUseCase(newsRepository: NewsRepository): GetTopNewsUseCase = GetTopNewsUseCase(newsRepository = newsRepository)
+
+    @Provides
+    @Singleton
+    fun providesGetSavedNewsUseCase(newsRepository: NewsRepository): GetSavedArticlesUseCase = GetSavedArticlesUseCase(repository = newsRepository)
 
 //    @Provides
 //    @Singleton

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +47,7 @@ fun NewsCardForDetails(
     Column(modifier = modifier
         .padding(paddingValues)
         .padding(16.dp)
-        .scrollable(scrollableState , orientation = Orientation.Vertical)
+        .verticalScroll(scrollableState)
         .fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically , modifier = modifier.padding(bottom = 10.dp)) {
             AsyncImage(

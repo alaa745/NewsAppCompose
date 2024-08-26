@@ -80,7 +80,7 @@ class NewsRepositoryImpl @Inject constructor(private val newsApiDataSource: News
         return newsDao.isArticleExists(id)
     }
 
-    override suspend fun getAllArticles(): Flow<List<Result>> {
+    override suspend fun getAllSavedArticles(): Flow<List<Result>> {
         return newsDao.getAllArticles()
     }
 }
