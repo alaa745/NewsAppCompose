@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -55,7 +56,7 @@ fun NewsCard(
                 .clip(RoundedCornerShape(8))
         )
         Column (verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(7.dp)){
+            modifier = Modifier.padding(7.dp).height(105.dp)){
             Text(
                 text = result.category?.first() ?: "",
                 style = MaterialTheme.typography.labelSmall,

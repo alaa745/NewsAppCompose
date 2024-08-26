@@ -52,14 +52,17 @@ class HomeScreenViewModel @Inject constructor(private val getNewsUseCase: GetNew
                     println("errorr")
                 }
 
-            _isLoading.value = false
+//            _isLoading.value = false
 //            _isSearching.value = false
             emitAll(data)
+//            _isLoading.value = false
         } catch (e: HttpException){
             println("view model error")
             _isLoading.value = false
             _isError.value = true
             _error.value = e.message!!
+        } finally {
+            _isLoading.value = false
         }
     }
 
@@ -72,8 +75,9 @@ class HomeScreenViewModel @Inject constructor(private val getNewsUseCase: GetNew
                 .catch {
                     println("errorr")
                 }
-            _isTopLoading.value = false
+//            _isTopLoading.value = false
             emitAll(data)
+            _isTopLoading.value = false
 //            _isSearching.value = false
 //            emitAll(data)
         } catch (e: HttpException) {
@@ -83,9 +87,7 @@ class HomeScreenViewModel @Inject constructor(private val getNewsUseCase: GetNew
             _isTopError.value = true
             _topError.value = e.message ?: "Unknown error"
         } finally {
-            _isTopLoading.value = false
-            _isTopError.value = false
-
+            _isLoading.value = false
         }
     }
 }

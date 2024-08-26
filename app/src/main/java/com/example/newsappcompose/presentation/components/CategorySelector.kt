@@ -1,14 +1,19 @@
 package com.example.newsappcompose.presentation.components
 
+import android.provider.CalendarContract.Colors
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,12 +37,17 @@ import androidx.compose.ui.unit.dp
 import com.example.newsappcompose.R
 
 @Composable
-fun CategorySelector(categories: List<String> , selectedCategory: String , onCategorySelected: (String) -> Unit ){
+fun CategorySelector(categories: List<String> , selectedCategory: String , isScrolled: Boolean , onCategorySelected: (String) -> Unit ){
     var textWidth by remember { mutableStateOf(0) }
     var measured by remember { mutableStateOf(false) }
 
-    LazyRow(modifier = Modifier
-        .padding(8.dp) , horizontalArrangement = Arrangement.SpaceEvenly) {
+    LazyRow(
+        contentPadding = PaddingValues(start = 10.dp , end = 10.dp),
+        modifier = if (isScrolled)  Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .statusBarsPadding() else Modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            , horizontalArrangement = Arrangement.SpaceEvenly) {
         items(categories) { category ->
             Column(modifier = Modifier.padding(8.dp).wrapContentWidth() , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(

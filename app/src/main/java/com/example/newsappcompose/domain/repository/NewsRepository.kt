@@ -16,5 +16,5 @@ interface NewsRepository {
 
     suspend fun checkArticleExists(id: String): Boolean
 
-    suspend fun getAllArticles(): Flow<List<Result>>
+    suspend fun getAllSavedArticles(): Flow<List<Result>>
 }
