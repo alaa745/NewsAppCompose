@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.example.newsappcompose.R
 import com.example.newsappcompose.destination.Destination
 import com.example.newsappcompose.domain.model.Result
 import com.example.newsappcompose.presentation.components.NewsCard
@@ -101,6 +102,7 @@ fun SavedNewsScreen(viewModel: SavedNewsScreenViewModel = hiltViewModel() , navH
                                     val article = articles[index]
                                     NewsCard(
                                         result = article,
+                                        placeHolderImage = R.drawable.small_placeholder,
                                         onClick = { desc ->
                                             val articleJson = Gson().toJson(article)
                                             val encodedCountriesJson = URLEncoder.encode(articleJson, StandardCharsets.UTF_8.toString())
