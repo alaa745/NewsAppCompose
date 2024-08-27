@@ -13,6 +13,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,28 +21,35 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,6 +74,7 @@ import com.example.newsappcompose.presentation.components.SearchBar
 import com.example.newsappcompose.presentation.components.VerticalNewsCard
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.Locale
@@ -75,8 +84,6 @@ import javax.inject.Inject
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel(), navHostController: NavHostController) {
-    val isLoading by viewModel.isLoading.collectAsState()
-    val isTopLoading by viewModel.isTopLoading.collectAsState()
 
     val isError by viewModel.isError.collectAsState()
     val isTopError by viewModel.isTopError.collectAsState()
@@ -89,11 +96,19 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel(), navHostControll
     var searchText by remember { mutableStateOf<String?>(null) }
     var searchTextForApi by remember { mutableStateOf<String?>(null) }
 
-    val topNewsFlow = viewModel.getTopNews(category = listOf("top"))
-    val topArticles = topNewsFlow.collectAsState(initial = null)
+//    val topNewsFlow = viewModel.getTopNews(category = listOf("top"))
+    val topArticles = viewModel.topArticles.collectAsState()
     val newsFlow = viewModel.getNews(category = listOf(selectedCategoryForApi), searchText = searchTextForApi)
     val articles = newsFlow.collectAsLazyPagingItems()
 
+//    val newsArticles = viewModel.newsArticles.collectAsLazyPagingItems()
+
+    val isTopLoading = viewModel.isTopLoading.observeAsState().value
+    val isLoading = viewModel.isLoading.collectAsState().value
+    
+    LaunchedEffect(selectedCategoryForApi , searchTextForApi) {
+        viewModel.getNews(category = listOf(selectedCategoryForApi), searchText = searchTextForApi)
+    }
     // Track scroll position using LazyColumn's scroll state
     val scrollState = rememberLazyListState()
     val showCategoryOnTop by remember {
@@ -102,104 +117,170 @@ fun NewsScreen(viewModel: HomeScreenViewModel = hiltViewModel(), navHostControll
         }
     }
 
-    Scaffold {
-        LazyColumn(
-            state = scrollState,
-//            modifier = Modifier.fillMaxSize(),
-        ) {
-            // Top section with Image and SearchBar, this will scroll
-            item {
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillWidth,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(top = 15.dp, start = 10.dp)
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    SearchBar(
-                        onValueChange = { searchText = it },
-                        value = searchText ?: "",
-                        onSearch = {
-                            searchTextForApi = searchText
-                        }
-                    )
-//                    Spacer(modifier = Modifier.height(10.dp))
-                }
-            }
-            // Display content - top article and news articles
-            item {
-                when {
-                    isTopLoading -> {
-                        println("top loadingggggg")
-                        ShimmerNewsCard()
+    val showScrollToTopButton by remember {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex > 0
+        }
+    }
 
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold {
+        Box(
+            Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                state = scrollState,
+                //            modifier = Modifier.fillMaxSize(),
+            ) {
+                // Top section with Image and SearchBar, this will scroll
+                item {
+                    Column(
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = null,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(top = 15.dp, start = 10.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        SearchBar(
+                            onValueChange = { searchText = it },
+                            value = searchText ?: "",
+                            onSearch = {
+                                searchTextForApi = searchText
+                            }
+                        )
+                        //                    Spacer(modifier = Modifier.height(10.dp))
                     }
-                    isTopError -> {
-                        ErrorView(error = topError)
-                    }
-                    else -> {
-                        topArticles.value?.results?.firstOrNull()?.let { article ->
-                            VerticalNewsCard(
-                                title = article.title,
-                                image = article.image_url,
-                                source = article.source_id,
-                                category = article.category?.first(),
-                                sourceIcon = article.source_icon
-                            )
+                }
+                // Display content - top article and news articles
+                item {
+                    when {
+                        isTopLoading == true -> {
+                            println("top loadingggggg")
+                            ShimmerNewsCard()
+
                         }
-                    }
-                }
-            }
-            // StickyHeader for CategorySelector - stays at the top when scrolling
-            stickyHeader {
-                CategorySelector(
-                    categories = categories,
-                    isScrolled = showCategoryOnTop,
-                    selectedCategory = selectedCategory
-                ) {
-                    selectedCategory = it
-                    selectedCategoryForApi = if (it.lowercase(Locale.ROOT) == "all") "" else it
-                }
-                // Add padding below the CategorySelector to separate it from the list
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-            when{
-                isLoading -> {
-                    item {
-                        ShimmerNewsCard()
-                    }
-                }
-                isError -> {
-                    item {
-                        ErrorView(error = error)
-                    }
-                }
-                else -> {
-                    println("elseeeee")
-                    // Load list of news articles
-                    items(articles.itemCount) { index ->
-                        articles[index]?.let { article ->
-                            NewsCard(
-                                result = article,
-                                onClick = {
-                                    val articleJson = Gson().toJson(article)
-                                    val encodedArticleJson = URLEncoder.encode(articleJson, StandardCharsets.UTF_8.toString())
-                                    navHostController.navigate("${Destination.NewsDetailsScreen.route}/$encodedArticleJson")
+
+                        isTopError -> {
+                            ErrorView(error = topError)
+                        }
+
+                        else -> {
+                            LazyRow(
+                                contentPadding = PaddingValues(15.dp)
+                            ) {
+
+                                topArticles.value?.results?.size.let { itemsCount ->
+                                    items(itemsCount!!){ index ->
+                                        topArticles.value?.results?.let { articles ->
+                                            VerticalNewsCard(
+                                                title = articles[index].title,
+                                                image = articles[index].image_url,
+                                                source = articles[index].source_id,
+                                                category = articles[index].category?.first(),
+                                                sourceIcon = articles[index].source_icon,
+                                                date = articles[index].pubDate,
+                                                placeHolderImage = R.drawable.placeholder
+                                            )
+                                        }
+                                    }
                                 }
-                            )
+                            }
+//                            topArticles.value?.results?.firstOrNull()?.let { article ->
+//                                VerticalNewsCard(
+//                                    title = article.title,
+//                                    image = article.image_url,
+//                                    source = article.source_id,
+//                                    category = article.category?.first(),
+//                                    sourceIcon = article.source_icon,
+//                                    date = article.pubDate
+//                                )
+//                            }
                         }
                     }
+                }
+                // StickyHeader for CategorySelector - stays at the top when scrolling
+                stickyHeader {
+                    CategorySelector(
+                        categories = categories,
+                        isScrolled = showCategoryOnTop,
+                        selectedCategory = selectedCategory
+                    ) {
+                        selectedCategory = it
+                        selectedCategoryForApi = if (it.lowercase(Locale.ROOT) == "all") "" else it
+                    }
+                    // Add padding below the CategorySelector to separate it from the list
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+                when {
+                    isLoading -> {
+                        println("Loadinggggggg")
+                        items(6) {
+                            ShimmerNewsCard()
+                        }
+                    }
+
+                    isError -> {
+                        item {
+                            ErrorView(error = error)
+                        }
+                    }
+
+                    else -> {
+                        println("elseeeee newss")
+                        // Load list of news articles
+                        items(articles.itemCount) { index ->
+                            articles[index]?.let { article ->
+                                NewsCard(
+                                    result = article,
+                                    placeHolderImage = R.drawable.small_placeholder,
+                                    onClick = {
+                                        val articleJson = Gson().toJson(article)
+                                        val encodedArticleJson = URLEncoder.encode(
+                                            articleJson,
+                                            StandardCharsets.UTF_8.toString()
+                                        )
+                                        navHostController.navigate("${Destination.NewsDetailsScreen.route}/$encodedArticleJson")
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            if (showScrollToTopButton) {
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            scrollState.animateScrollToItem(0)
+                        }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 150.dp, end = 20.dp)
+                        .size(56.dp),
+//                        .systemBarsPadding(),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Scroll to Top",
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun ShimmerEffect(modifier: Modifier = Modifier) {

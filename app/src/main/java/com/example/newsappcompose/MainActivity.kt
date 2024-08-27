@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -14,6 +12,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -23,8 +22,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -38,8 +36,9 @@ import com.example.newsappcompose.destination.Destination.OnBoardingScreen
 import com.example.newsappcompose.domain.model.Result
 import com.example.newsappcompose.presentation.homeNewsScreen.NewsScreen
 import com.example.newsappcompose.presentation.newsDetailsScreen.NewsDetailsScreen
-import com.example.newsappcompose.presentation.onBoarding.OnBoardingScreen
 import com.example.newsappcompose.presentation.savedNewsScreen.SavedNewsScreen
+import com.example.newsappcompose.presentation.settingsScreen.SettingsScreen
+import com.example.newsappcompose.presentation.settingsScreen.SettingsScreenViewModel
 import com.example.newsappcompose.ui.theme.NewsAppComposeTheme
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,15 +52,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         setContent {
-            NewsAppComposeTheme {
-                val isDarkMode = isSystemInDarkTheme()
+            val viewModel: SettingsScreenViewModel = viewModel()
+            val isDarkMode = viewModel.isDarkMode.observeAsState()
+            NewsAppComposeTheme(
+                darkTheme = isDarkMode.value!!,
+            ) {
+//                val isDarkMode = isSystemInDarkTheme()
                 val context = LocalContext.current
                 val view = LocalView.current
                 // Make status bar and navigation bar transparent
                 val windowInsetsController = ViewCompat.getWindowInsetsController(view)
-                windowInsetsController?.isAppearanceLightStatusBars = true // Dark text in light mode
+                windowInsetsController?.isAppearanceLightStatusBars = !isDarkMode.value!! // Dark text in light mode
                 window.statusBarColor = android.graphics.Color.TRANSPARENT
                 window.navigationBarColor = android.graphics.Color.TRANSPARENT
 
@@ -74,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(settingsScreenViewModel: SettingsScreenViewModel = viewModel()) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -94,7 +96,7 @@ fun MainScreen() {
                 BottomNavigationBar(navController)
         }
     ) {
-        MyNavigation(navController)
+        MyNavigation(navController , settingsScreenViewModel)
     }
 }
 
@@ -105,7 +107,8 @@ fun BottomNavigationBar(navHostController: NavHostController) {
     }
     val items = listOf(
         NewsScreen,
-        Destination.Saved
+        Destination.Saved,
+        Destination.SettingsScreen
     )
     NavigationBar {
         val navBackStackEntry by navHostController.currentBackStackEntryAsState()
@@ -135,7 +138,7 @@ fun BottomNavigationBar(navHostController: NavHostController) {
 }
 
 @Composable
-fun MyNavigation(navController: NavHostController){
+fun MyNavigation(navController: NavHostController, settingsScreenViewModel: SettingsScreenViewModel = viewModel()){
     NavHost(navController = navController, startDestination = NewsScreen.route) {
 //        composable(OnBoardingScreen.route){
 //            OnBoardingScreen(navController)
@@ -159,6 +162,9 @@ fun MyNavigation(navController: NavHostController){
         }
         composable(Destination.Saved.route){
             SavedNewsScreen(navHostController = navController)
+        }
+        composable(Destination.SettingsScreen.route){
+            SettingsScreen(viewModel = settingsScreenViewModel)
         }
     }
 }

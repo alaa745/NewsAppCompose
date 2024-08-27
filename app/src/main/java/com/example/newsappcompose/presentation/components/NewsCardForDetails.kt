@@ -89,14 +89,14 @@ fun NewsCardForDetails(
         Text(
             text = result?.category?.first() ?: "",
             style = MaterialTheme.typography.labelSmall,
-            color = colorResource(id = R.color.text_medium)
+//            color = colorResource(id = R.color.text_medium)
         )
         Text(
             text = result?.title ?: "",
             style = MaterialTheme.typography.displayMedium,
             maxLines = 4,
 //            overflow = TextOverflow.Ellipsis,
-            color = colorResource(id = R.color.display_small)
+//            color = colorResource(id = R.color.display_small)
         )
         Spacer(modifier = modifier.height(15.dp))
 
@@ -105,7 +105,7 @@ fun NewsCardForDetails(
             style = MaterialTheme.typography.displaySmall,
 //            maxLines = 4,
             overflow = TextOverflow.Ellipsis,
-            color = colorResource(id = R.color.body)
+//            color = colorResource(id = R.color.body)
         )
 //        Row(verticalAlignment = Alignment.CenterVertically , modifier = modifier.padding(8.dp)) {
 //            AsyncImage(

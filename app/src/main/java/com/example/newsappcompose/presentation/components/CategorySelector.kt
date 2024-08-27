@@ -55,7 +55,7 @@ fun CategorySelector(categories: List<String> , selectedCategory: String , isScr
                     style = MaterialTheme.typography.bodyMedium,
                     //                maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    color = colorResource(id = R.color.display_small),
+//                    color = colorResource(id = R.color.display_small),
                     modifier = Modifier.clickable {
                         onCategorySelected(category)
                     }.onGloballyPositioned {
